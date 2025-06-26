@@ -42,17 +42,29 @@ class _BMICalculatorPageState extends State<BMICalculatorPage>
   }
 
   void _calculateBMI() {
+    _animationController.reset();
+
     if (_weightController.text.isEmpty || _heightController.text.isEmpty) {
       setState(() {
         _result = 'Please enter both weight and height';
         _category = '';
+        _categoryColor = Colors.grey;
       });
+      _animationController.forward();
       return;
     }
 
     try {
-      final weight = double.parse(_weightController.text);
-      final height = double.parse(_heightController.text);
+      final weight = double.tryParse(_weightController.text);
+      final height = double.tryParse(_heightController.text);
+
+      if (weight == null || height == null) {
+        throw FormatException('Please enter valid numbers');
+      }
+
+      if (weight <= 0 || height <= 0) {
+        throw FormatException('Values must be greater than zero');
+      }
 
       final bmiData = CalculationService.calculateBMI(weight, height);
       final bmiValue = double.parse(bmiData['bmi']!);
@@ -63,13 +75,21 @@ class _BMICalculatorPageState extends State<BMICalculatorPage>
         _categoryColor = bmiData['categoryColor'] as Color;
       });
 
-      _animationController.reset();
+      _animationController.forward();
+    } on FormatException catch (e) {
+      setState(() {
+        _result = 'Error: ${e.message}';
+        _category = '';
+        _categoryColor = Colors.red;
+      });
       _animationController.forward();
     } catch (e) {
       setState(() {
-        _result = 'Invalid input: ${e.toString()}';
+        _result = 'Error: ${e.toString()}';
         _category = '';
+        _categoryColor = Colors.red;
       });
+      _animationController.forward();
     }
   }
 
@@ -137,12 +157,24 @@ class _BMICalculatorPageState extends State<BMICalculatorPage>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    color: _categoryColor.withOpacity(0.5),
+                    color:
+                        _result.startsWith('Error')
+                            ? Colors.red.withOpacity(0.2)
+                            : _categoryColor.withOpacity(0.5),
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          Icon(
+                            _result.startsWith('Error')
+                                ? Icons.error
+                                : Icons.calculate,
+                            size: 36,
+                            color:
+                                _result.startsWith('Error')
+                                    ? Colors.red
+                                    : _categoryColor,
+                          ),
                           Center(
                             child: Text(
                               _result,
