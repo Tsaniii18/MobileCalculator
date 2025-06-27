@@ -211,7 +211,7 @@ class _BatchCalculatePageState extends State<BatchCalculatePage>
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    color: Colors.blue,
+                    color: Colors.red.withOpacity(0.2),
                     child: Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Column(
@@ -232,7 +232,7 @@ class _BatchCalculatePageState extends State<BatchCalculatePage>
                             style: TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: Colors.red,
                             ),
                             textAlign: TextAlign.center,
                           ),
